@@ -1,0 +1,10 @@
+const GAME_ACTIONS = {
+    START: 'START',
+    RESET: 'RESET',
+    WON: 'WON',
+    LOST: 'LOST',
+    UPDATE_STATUS: 'UPDATE_STATUS',
+    UPDATE_FLAGS_COUNT: 'UPDATE_FLAGS_COUNT'
+};
+
+export default GAME_ACTIONS;
