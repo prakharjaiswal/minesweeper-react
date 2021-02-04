@@ -1,7 +1,7 @@
 import GAME_ACTIONS from '../actions/minesweeper.action';
 import GAME_STATUS from '../constants/gamestatus.constant';
 
-export default function useMineSweeper(props) {
+export default function useMineSweeper() {
     return (st, action) => {
         switch(action.type) {
             case GAME_ACTIONS.START:
@@ -12,7 +12,11 @@ export default function useMineSweeper(props) {
             case GAME_ACTIONS.RESET:
                 return {
                     ...st,
-                    gameStatus: GAME_STATUS.RESET
+                    gameStatus: GAME_STATUS.RESET,
+                    remainingFlags: action.remainingFlags || st.remainingFlags,
+                    rows: action.rows || st.rows,
+                    bombs: action.bombs || st.bombs,
+                    columns: action.columns || st.columns
                 };
             case GAME_ACTIONS.READY:
                 return {
@@ -32,7 +36,7 @@ export default function useMineSweeper(props) {
             case GAME_ACTIONS.UPDATE_FLAGS_COUNT: 
                 return {
                     ...st,
-                    flags: action.data.flagsRemaining
+                    remainingFlags: action.data.remainingFlags
                 }
             default:
                 return st;

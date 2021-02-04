@@ -1,35 +1,53 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import GAME_STATUS from '../../constants/gamestatus.constant';
+import {GAME_LEVELS} from '../../constants/gameLevel.constant';
 import Grid from '../grid/Grid.component';
+import {Grid as StyledGrid} from '../styles/grid.style';
+import {Button} from '../styles/input.style';
 import Timer from '../timer/Timer.component';
+import GameLevelSelector from '../gamelevelselector/GameLevelSelector.component';
 import {recordWin} from '../../utils/record.util';
 import GAME_ACTIONS from '../../actions/minesweeper.action';
-import './minesweeper.css';
 import useMineSweeper from '../../reducers/useMineSweeper.reducer';
+import usePrevious from '../../reducers/usePrevious.reducer';
 
 export default function MineSweeper(props) {
-
-    const [state, dispatch] = useReducer(useMineSweeper(props),
+    const defaultGameLevel = GAME_LEVELS.find(game => game.label === props.defaultLevel);
+    const [state, dispatch] = useReducer(useMineSweeper(),
         {
             gameStatus: GAME_STATUS.RESET,
-            flags: props.bombs
+            remainingFlags: defaultGameLevel.bombs,
+            bombs: defaultGameLevel.bombs,
+            rows: defaultGameLevel.rows,
+            columns: defaultGameLevel.columns
         });
     
+    let {rows, columns, remainingFlags, gameStatus, bombs} = state;    
     let onStartGame = () => {
         dispatch({type: GAME_ACTIONS.START});
     };
     let handleResetButton = () => {
-        dispatch({type: GAME_ACTIONS.RESET});
+        dispatch({type: GAME_ACTIONS.RESET, remainingFlags: bombs});
     };
     let handleFlagUpdate = (flagsUsed) => {
-        dispatch({type: GAME_ACTIONS.UPDATE_FLAGS_COUNT, data: {flagsRemaining: props.bombs - flagsUsed } });
+        dispatch({type: GAME_ACTIONS.UPDATE_FLAGS_COUNT, data: {remainingFlags: remainingFlags - flagsUsed } });
+    };
+    let handleGameLevelChange = newGameLevel => {
+        dispatch({type: GAME_ACTIONS.RESET, ...newGameLevel});
     };
 
     let onTimerStopped = (timer) => {
-        if(state.gameStatus === GAME_STATUS.WON) {
-            recordWin(props.rows, props.columns, props.bombs, timer);
+        if(gameStatus === GAME_STATUS.WON) {
+            recordWin(rows, columns, bombs, timer);
         }
     };
+    let previousState = usePrevious(state);
+
+    useEffect(() => {
+        if(previousState && (previousState.rows !== rows || previousState.columns !== columns)) {
+            dispatch({type: GAME_ACTIONS.RESET, remainingFlags: bombs});
+        }
+    });
 
     let handleGridCompletion = (status) => {
         switch(status) {
@@ -47,20 +65,26 @@ export default function MineSweeper(props) {
     };
     
     return (<div className='gameContainer'>
-                <section className='grid game-controls'>
+                <StyledGrid templateColumns="2fr 1fr 2fr">
                     <Timer
-                        begin={state.gameStatus === GAME_STATUS.IN_PROGRESS}
-                        reset={state.gameStatus === GAME_STATUS.RESET}
+                        begin={gameStatus === GAME_STATUS.IN_PROGRESS}
+                        reset={gameStatus === GAME_STATUS.RESET}
                         onStop={onTimerStopped}></Timer>
-                    <span>{state.flags} 🚩</span>
-                    <span><button onClick={handleResetButton}>Reset</button></span>
-                </section>
+                    <span>{remainingFlags}&nbsp;🚩</span>
+                    <span>
+                        <GameLevelSelector
+                            defaultGameLevel={defaultGameLevel.label}
+                            onGameLevelChange={handleGameLevelChange}>
+                        </GameLevelSelector>
+                        <Button title="Reset Game" onClick={handleResetButton}>↺</Button>
+                    </span>
+                </StyledGrid>
                 <Grid
-                    rows={props.rows}
-                    columns={props.columns}
-                    bombs={props.bombs}
+                    rows={rows}
+                    columns={columns}
+                    bombs={bombs}
                     onstart={onStartGame}
-                    gameStatus={state.gameStatus}
+                    gameStatus={gameStatus}
                     onFlagUpdate={handleFlagUpdate}
                     onComplete={handleGridCompletion}>
                 </Grid>

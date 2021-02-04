@@ -1,21 +1,9 @@
 import React from 'react';
-import './cell.css';
+import {RevealedFlaggedCell, UnRevealedCell, FlaggedCell, RevealedCell} from './cell.style';
 
 
 function getSymbol(bombsCount) {
     return bombsCount === -1 ? '💣' : bombsCount || '';
-}
-
-function RevealedCell(props) {
-    return (<span className={`cell revealed ${props.flagged ? "flagged" : ""}`} data-coord={props.coord}>{ getSymbol(props.bombsCount) }</span>);
-}
-
-function UnRevealedCell(props) {
-    return (<span className='cell un-revealed' data-coord={props.coord}>&nbsp;</span>);
-}
-
-function FlaggedCell(props) {
-    return (<span className={`cell flagged ${props.revealed ? "revealed" : ""}`} data-coord={props.coord}>{ props.revealed ? getSymbol(props.bombsCount) : '🚩'}</span>);
 }
 
 
@@ -23,10 +11,18 @@ function Cell(props) {
     let {data} = props;
     let coord = [props.row, props.col];
     return(data.flagged ?
-            <FlaggedCell coord={coord} revealed={data.revealed} bombsCount={data.bombsCount}></FlaggedCell> :
+            (
+                data.revealed ? 
+                <RevealedFlaggedCell data-coord={coord}>
+                    {getSymbol(data.bombsCount)}
+                </RevealedFlaggedCell> :
+                <FlaggedCell data-coord={coord}>🚩</FlaggedCell>
+                ) :
             (data.revealed  ?
-                <RevealedCell bombsCount={data.bombsCount} flagged={data.flagged} coord={coord}></RevealedCell> :
-                <UnRevealedCell coord={coord} flagged={data.flagged}></UnRevealedCell>
+                <RevealedCell data-coord={coord} bombsCount={data.bombsCount} flagged={data.flagged} coord={coord}>
+                    {getSymbol(data.bombsCount)}
+                </RevealedCell> :
+                <UnRevealedCell data-coord={coord}></UnRevealedCell>
             ));
 }
 

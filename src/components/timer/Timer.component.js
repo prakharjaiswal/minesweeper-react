@@ -13,11 +13,11 @@ export default function Timer(props) {
 
     const [state, dispatch] = useReducer((st, action) => {
         let moment = Date.now();
-        switch(action) {
+        switch(action.type) {
             case ACTIONS.START:
                 return {
                     ...st,
-                    timestamp: moment,
+                    timestamp: action.moment,
                     time: 1
                 }
             case ACTIONS.RESET: 
@@ -42,15 +42,15 @@ export default function Timer(props) {
     useEffect(() => {
         let intervalId;
         if(props.reset && state.time > 0) {
-            dispatch(ACTIONS.RESET);
+            dispatch({type: ACTIONS.RESET});
             return;
         }
         if(props.begin) {
             if(state.time === 0) {
-                dispatch(ACTIONS.START);
+                dispatch({type: ACTIONS.START, moment: Date.now()});
             }else {
                 intervalId = setTimeout(() => {
-                    dispatch(ACTIONS.TICK);
+                    dispatch({type: ACTIONS.TICK});
                 }, 1000);   
                 return () => clearInterval(intervalId);
             }

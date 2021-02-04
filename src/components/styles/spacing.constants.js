@@ -1,0 +1,1 @@
+export const INPUT_ELEMENT_PADDING = '0.5em 1em;'

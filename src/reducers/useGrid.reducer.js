@@ -48,6 +48,7 @@ export default function(props) {
                     ...st,
                     grid: getEmptyGrid(props.rows, props.columns),
                     dirty: false,
+                    flaggedCount: 0
                 };
             default:
                 return st;
