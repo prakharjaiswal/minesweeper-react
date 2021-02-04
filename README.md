@@ -8,3 +8,4 @@
 ## Todo
 - better UI (looks yuck currently)
 - better state management
+- Grid cell dimension logic is ugly and hard coupled, fix it
